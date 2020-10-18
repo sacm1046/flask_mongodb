@@ -25,11 +25,27 @@ def getUsers():
     users=[]
     for doc in table.find():
         users.append({
-            '_id': str(ObjectId(doc['_id']))
+            '_id': str(ObjectId(doc['_id'])),
+            'username': doc['username']
         })
     return jsonify(users), 200
+
+@route_users.route('/user/<id>', methods=['GET'])
+def getUser(id):
+    user = table.find_one({'_id': ObjectId(id)})
+    return jsonify({
+        '_id': str(ObjectId(user['_id'])),
+        'username': user['username']
+    })
+
+@route_users.route('/user/<id>', methods=['PUT'])
+def updateUser(id):
+    table.update_one({'_id': ObjectId(id)}, {'$set': {
+        'username': request.json['username']
+    }})
+    return jsonify({'success':'usuario actualizado'}),200
 
 @route_users.route('/user/<id>', methods=['DELETE'])
 def deleteUser(id):
     table.delete_one({'_id': ObjectId(id)})
-    return jsonify({'success': 'usuario eliminado'})
+    return jsonify({'success': 'usuario eliminado'}),200
